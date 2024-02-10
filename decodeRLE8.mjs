@@ -1,17 +1,22 @@
 export default function decodeRLE8(data, width, height, palette) {
+  if (data.length < 4) {
+    throw new Error(
+      `Invalid RLE8, length: ${data.length}`
+    );
+  }
   //first 4 octet represents uncompressed length of data
   //and it must be the same as imgw * imgh
   //and RLE8 is always for 256 indexed colour
   const uncompressedDataLength = data.readUInt32LE(0);
   if (uncompressedDataLength !== width * height) {
-    throw new Exception(
+    throw new Error(
       `Invalid RLE8, uncompressed data length should be ${
         width * height
       } (${width} x ${height}), actual: ${uncompressedDataLength}`
     );
   }
   if (data.length < 4) {
-    throw new Exception(`Invalid RLE8, too short`);
+    throw new Error(`Invalid RLE8, too short`);
   }
 
   const colorComponentCount = 4;

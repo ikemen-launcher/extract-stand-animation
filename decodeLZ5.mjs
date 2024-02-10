@@ -5,9 +5,9 @@ export default function decodeLZ5(rle, width, height, palette) {
 
   const rawDataOffset = 4; // first 4 octet represents uncompressed length of data
   const length = rle.readUInt32LE(0);
-  console.log('image length:', length);
+  //console.log('image length:', length);
   const encoded = rle.subarray(rawDataOffset);
-  console.log('encoded length:', encoded.length);
+  //console.log('encoded length:', encoded.length);
 
     let decoded = Buffer.alloc(width * height, 0);
     let i = 0;
@@ -88,7 +88,7 @@ export default function decodeLZ5(rle, width, height, palette) {
     }
 
 
-  console.log('Pixel count:', decoded.length);
+  //console.log('Pixel count:', decoded.length);
   /*
   for (let a = 0; a < decoded.length; a++) {
     console.log(decoded[a]);
@@ -100,7 +100,7 @@ export default function decodeLZ5(rle, width, height, palette) {
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       let colorIndex = decoded[y * width + x];
-      console.log(colorIndex);
+      //console.log(colorIndex);
       
       let red   = palette[colorIndex * 4 + 0];
       let green = palette[colorIndex * 4 + 1];
