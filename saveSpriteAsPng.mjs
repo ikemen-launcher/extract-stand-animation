@@ -1,8 +1,10 @@
+import { exit } from 'node:process';
 import { writeFileSync } from "node:fs";
 import { PNG } from "pngjs";
 import decodeRLE8 from "./decodeRLE8.mjs";
 import decodeLZ5 from "./decodeLZ5.mjs";
 import decodePNG8 from "./decodePNG8.mjs";
+import decodePCX from "./decodePCX.mjs";
 
 function saveAsPNG(image, width, height, outputPath) {
   const png = new PNG({ width: width, height: height });
@@ -30,6 +32,25 @@ function saveAsPNG(image, width, height, outputPath) {
 
 export default function saveSpriteAsPng(spriteGroup, spriteNumber, spriteBuffer, imageWidth, imageHeight, palette, compressionMethod) {
   switch (compressionMethod) {
+    default:
+      console.error(`Unknown compression method: ${compressionMethod}`);
+      break;
+    case 'PCX':
+      {
+        const sprite = decodePCX(
+          spriteBuffer,
+          imageWidth,
+          imageHeight,
+          palette
+        );
+        saveAsPNG(
+          sprite,
+          imageWidth,
+          imageHeight,
+          `sprites/${spriteGroup}-${spriteNumber}.png`
+        );
+      }
+      break;
     case "RLE5":
       {
         console.error("TODO RLE5");
