@@ -12,7 +12,7 @@ export default function extractSprites(filePath) {
   const VersionLo1 = data.readUInt8(14);
   const VersionHi = data.readUInt8(15);
   const version = `${VersionHi}.${VersionLo1}.${VersionLo2}.${VersionLo3}`;
-  console.log(`  ${signature}, version ${version}`);
+  console.log(`SFF version ${version}`);
   if (VersionHi === 1) {
     extractSpritesFromSFFV1(data);
   }

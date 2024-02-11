@@ -34,6 +34,7 @@ export default function saveSpriteAsPng(spriteGroup, spriteNumber, spriteBuffer,
   switch (compressionMethod) {
     default:
       console.error(`Unknown compression method: ${compressionMethod}`);
+      throw new Error(`Unknown compression method: ${compressionMethod}`);
       break;
     case 'PCX':
       {
@@ -54,6 +55,7 @@ export default function saveSpriteAsPng(spriteGroup, spriteNumber, spriteBuffer,
     case "RLE5":
       {
         console.error("TODO RLE5");
+        throw new Error(`TODO RLE5`);
       }
       break;
     case "RLE8":
@@ -110,7 +112,7 @@ export default function saveSpriteAsPng(spriteGroup, spriteNumber, spriteBuffer,
       var options = { colorType: 6 };
       var buffer = PNG.sync.write(png, options);
       writeFileSync(`sprites/${spriteGroup}-${spriteNumber}.png`, buffer);
-      console.log(`sprites/${spriteGroup}-${spriteNumber}.png`);
+      //console.log(`sprites/${spriteGroup}-${spriteNumber}.png`);
     }
   }
 }

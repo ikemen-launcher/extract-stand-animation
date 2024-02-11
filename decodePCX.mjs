@@ -5,43 +5,43 @@ export default function decodePCX(buffer, width, height, palette) {
   let offset = 0;
 
   const id = buffer.readUInt8(offset);
-  console.log(`  PCX id: ${id}`);
+  //console.log(`  PCX id: ${id}`);
   offset += 1;
   
   const version = buffer.readUInt8(offset);
-  console.log(`  PCX version: ${version}`);
+  //console.log(`  PCX version: ${version}`);
   offset += 1;
   
   const encoding = buffer.readUInt8(offset);
-  console.log(`  PCX encoding: ${encoding}`);
+  //console.log(`  PCX encoding: ${encoding}`);
   offset += 1;
   
   const bitPerPixel = buffer.readUInt8(offset);
-  console.log(`  PCX bitPerPixel: ${bitPerPixel}`);
+  //console.log(`  PCX bitPerPixel: ${bitPerPixel}`);
   offset += 1;
   
   const x = buffer.readUInt16LE(offset);
-  console.log(`  PCX x: ${x}`);
+  //console.log(`  PCX x: ${x}`);
   offset += 2;
   
   const y = buffer.readUInt16LE(offset);
-  console.log(`  PCX y: ${y}`);
+  //console.log(`  PCX y: ${y}`);
   offset += 2;
   
   let pcxWidth = buffer.readUInt16LE(offset);
-  console.log(`  PCX width: ${pcxWidth}`);
+  //console.log(`  PCX width: ${pcxWidth}`);
   offset += 2;
   
   let pcxHeight = buffer.readUInt16LE(offset);
-  console.log(`  PCX height: ${pcxHeight}`);
+  //console.log(`  PCX height: ${pcxHeight}`);
   offset += 2;
   
   const hres = buffer.readUInt16LE(offset);
-  console.log(`  PCX hres: ${hres}`);
+  //console.log(`  PCX hres: ${hres}`);
   offset += 2;
   
   const vres = buffer.readUInt16LE(offset);
-  console.log(`  PCX vres: ${vres}`);
+  //console.log(`  PCX vres: ${vres}`);
   offset += 2;
   
   const colorMap = []; // 16 colors rgb
@@ -57,19 +57,19 @@ export default function decodePCX(buffer, width, height, palette) {
   }
 
   const reserved = buffer.readUInt8(offset);
-  console.log(`  PCX reserved: ${reserved}`);
+  //console.log(`  PCX reserved: ${reserved}`);
   offset += 1;
   
   const nbPlanes = buffer.readUInt8(offset);
-  console.log(`  PCX nbPlanes: ${nbPlanes}`);
+  //console.log(`  PCX nbPlanes: ${nbPlanes}`);
   offset += 1;
   
   const bpl = buffer.readUInt16LE(offset);
-  console.log(`  PCX bpl: ${bpl}`);
+  //console.log(`  PCX bpl: ${bpl}`);
   offset += 2;
   
   const paletteInfo = buffer.readUInt16LE(offset);
-  console.log(`  PCX paletteInfo: ${paletteInfo}`);
+  //console.log(`  PCX paletteInfo: ${paletteInfo}`);
   offset += 2;
 
   let imagePalette = null; // 256 colors rgb
