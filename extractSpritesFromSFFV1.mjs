@@ -1,22 +1,8 @@
-import { readFileSync } from 'node:fs';
 import saveSpriteAsPng from './saveSpriteAsPng.mjs';
 import convertPaletteRGBtoRGBA from './convertPaletteRGBtoRGBA.mjs';
 
-const data = readFileSync("data/cvsryu.sff");
-
-// Header
-const signature = data.toString("ascii", 0, 11);
-const VersionLo3 = data.readUInt8(12);
-const VersionLo2 = data.readUInt8(13);
-const VersionLo1 = data.readUInt8(14);
-const VersionHi = data.readUInt8(15);
-const version = `${VersionHi}.${VersionLo1}.${VersionLo2}.${VersionLo3}`;
-console.log(`${signature}, version ${version}`);
-if (VersionHi !== 1) {
-  throw new Error(`Unsupported version: ${version}`);
-}
-
-const nbGroups = data.readUInt32LE(16);
+export default function extractSpritesFromSFFV1(data) {
+  const nbGroups = data.readUInt32LE(16);
 console.log(`nbGroups: ${nbGroups}`);
 
 const spriteCount = data.readUInt32LE(20);
@@ -111,4 +97,5 @@ for (
 
   sprites.push(sprite);
   spriteOffset = nextSpriteOffset;
+}
 }
