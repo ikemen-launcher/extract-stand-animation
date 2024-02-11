@@ -1,6 +1,4 @@
 import { PNG } from "pngjs";
-import crc32 from 'crc32';
-import { readFileSync, writeFileSync } from "node:fs";
 
 export default function decodePNG8(buffer, width, height, palette) {
   const rawDataOffset = 4; // first 4 octet represents uncompressed length of data
@@ -13,13 +11,13 @@ export default function decodePNG8(buffer, width, height, palette) {
 
   const data = buffer.subarray(rawDataOffset);
 
-  const isPNG8 = data.subarray(25, 29).toString('hex') === '03000800'; // 03000000
+  const isPNG8 = data.subarray(25, 29).toString('hex') === '03000800';
   if (!isPNG8) {
-    //throw new Error('Not PNG8');
-    // Invalid signature
+    // throw new Error('Not PNG8');
+    // SFF contains invalid PNG8 signature (=03000000)
   }
 
-  // Extraire la palette
+  // Replace the palette
   const paletteStart = 33 + 8; // 33 because it contains PNG signature
   const paletteChunkSignatureLength = 8;
   const paletteEnd = paletteStart + paletteChunkSignatureLength + 768; // 256 * 3 color components (RGB)
@@ -37,25 +35,20 @@ export default function decodePNG8(buffer, width, height, palette) {
   }
 
   /*
+  // Generate CRC
   const paletteCrc = crc32(originalPalette);
   console.log('paletteCrc:', paletteCrc);
-  console.log(parseInt(paletteCrc.substring(0, 2), 16));
-  console.log(parseInt(paletteCrc.substring(2, 4), 16));
-  console.log(parseInt(paletteCrc.substring(4, 6), 16));
-  console.log(parseInt(paletteCrc.substring(6, 8), 16));
-
-  data[paletteEnd] = parseInt(paletteCrc.substring(0, 2), 16);
-  data[paletteEnd + 1] = parseInt(paletteCrc.substring(2, 4), 16);
-  data[paletteEnd + 2] = parseInt(paletteCrc.substring(4, 6), 16);
-  data[paletteEnd + 3] = parseInt(paletteCrc.substring(6, 8), 16);
+  const crcByte1 = parseInt(paletteCrc.substring(0, 2), 16);
+  const crcByte2 = parseInt(paletteCrc.substring(2, 4), 16);
+  const crcByte3 = parseInt(paletteCrc.substring(4, 6), 16);
+  const crcByte4 = parseInt(paletteCrc.substring(6, 8), 16);
+  data[paletteEnd + 0] = crcByte1;
+  data[paletteEnd + 1] = crcByte2;
+  data[paletteEnd + 2] = crcByte3;
+  data[paletteEnd + 3] = crcByte4;
   */
 
-
-  //const signatureSecondChunk = data.toString("ascii", paletteEnd, paletteEnd+8);
-  //console.log(signatureSecondChunk);
-  //console.log(data.toString("ascii", 0, data.length));
-
-  const options = { checkCRC: false };
+  const options = { checkCRC: false }; // The option checkCRC=false prevents to generate a CRC for the palette
   var png = PNG.sync.read(data, options);
 
   ///*

@@ -1,20 +1,10 @@
-import { exit } from "node:process";
-import { readFileSync, writeFileSync } from "node:fs";
-import { PNG } from "pngjs";
-import decodeRLE8 from "./decodeRLE8.mjs";
-import decodeLZ5 from "./decodeLZ5.mjs";
-import decodePNG8 from "./decodePNG8.mjs";
+import { readFileSync } from "node:fs";
+import saveSpriteAsPng from "./saveSpriteAsPng.mjs";
 
 //const data = readFileSync("data/kfm.sff");
 //const data = readFileSync("data/kfm/kfm.sff");
 const data = readFileSync("data/Bang.sff");
 //const data = readFileSync("data/cvsryu.sff");
-
-function printBetweenTwoOffset(from, to) {
-  for (let i = from; i < to; i++) {
-    console.log(data.readUInt8(i));
-  }
-}
 
 function stringifyCompressionMethod(value) {
   switch (value) {
@@ -39,30 +29,6 @@ function stringifyCompressionMethod(value) {
   }
 }
 
-function saveAsPNG(image, width, height, outputPath) {
-  const png = new PNG({ width: width, height: height });
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      let index = (y * width + x) * 4;
-      let red = image[index];
-      let green = image[index + 1];
-      let blue = image[index + 2];
-      let alpha = image[index + 3];
-
-      let pngIndex = (y * width + x) << 2;
-      png.data[pngIndex] = red;
-      png.data[pngIndex + 1] = green;
-      png.data[pngIndex + 2] = blue;
-      png.data[pngIndex + 3] = alpha;
-    }
-  }
-
-  const options = { colorType: 6 };
-  const buffer = PNG.sync.write(png, options);
-  writeFileSync(outputPath, buffer);
-}
-
 // Header
 const signature = data.toString("ascii", 0, 11);
 const VersionLo3 = data.readUInt8(12);
@@ -70,10 +36,7 @@ const VersionLo2 = data.readUInt8(13);
 const VersionLo1 = data.readUInt8(14);
 const VersionHi = data.readUInt8(15);
 const version = `${VersionHi}.${VersionLo1}.${VersionLo2}.${VersionLo3}`;
-console.log(
-  `${signature}, version ${version}`
-);
-//if (version !== '2.0.1.0') {
+console.log(`${signature}, version ${version}`);
 if (VersionHi !== 2) {
   throw new Error(`Unsupported version: ${version}`);
 }
@@ -149,18 +112,22 @@ for (let paletteIndex = 0; paletteIndex < paletteCount; paletteIndex++) {
 
 // Sprite List, linear 28bytes per node
 const spriteNodeSize = 28;
+const sprites = [];
 for (let spriteIndex = 0; spriteIndex < spriteCount; spriteIndex++) {
-  console.log(`Sprite node ${spriteIndex + 1}:`);
+  const sprite = {};
+  console.log(`Sprite node index ${spriteIndex}:`);
 
   const spriteGroup = data.readUInt16LE(
     spriteListOffset + spriteIndex * spriteNodeSize
   );
   console.log(`  Group: ${spriteGroup}`);
+  sprite.group = spriteGroup;
 
   const spriteNumber = data.readUInt16LE(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x02
   );
   console.log(`  Number: ${spriteNumber}`);
+  sprite.number = spriteNumber;
 
   const imageWidth = data.readUInt16LE(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x04
@@ -169,6 +136,8 @@ for (let spriteIndex = 0; spriteIndex < spriteCount; spriteIndex++) {
     spriteListOffset + spriteIndex * spriteNodeSize + 0x06
   );
   console.log(`  Image dimensions: ${imageWidth} x ${imageHeight}`);
+  sprite.width = imageWidth;
+  sprite.height = imageHeight;
 
   const imageX = data.readUInt16LE(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x08
@@ -177,13 +146,27 @@ for (let spriteIndex = 0; spriteIndex < spriteCount; spriteIndex++) {
     spriteListOffset + spriteIndex * spriteNodeSize + 0x0a
   );
   console.log(`  Image position: ${imageX} x ${imageY}`);
+  sprite.x = imageX;
+  sprite.y = imageY;
 
   const linkedIndex = data.readUInt16LE(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x0c
   );
   console.log(`  Sprite linked index: ${linkedIndex}`);
+  sprite.linkedIndex = linkedIndex;
   if (linkedIndex > 0) {
-    console.error(`Skip unsupported linked sprite (${spriteGroup}, ${spriteNumber})`);
+    const linkedSprite = sprites[linkedIndex];
+
+    saveSpriteAsPng(
+      spriteGroup,
+      spriteNumber,
+      linkedSprite.spriteBuffer,
+      linkedSprite.width,
+      linkedSprite.height,
+      palettes[linkedSprite.paletteIndex],
+      linkedSprite.compressionMethod
+    );
+    sprites.push(sprite);
     continue;
   }
 
@@ -192,11 +175,13 @@ for (let spriteIndex = 0; spriteIndex < spriteCount; spriteIndex++) {
   );
   const compressionMethod = stringifyCompressionMethod(compressionMethodValue);
   console.log(`  Compression method: ${compressionMethod}`);
+  sprite.compressionMethod = compressionMethod;
 
   const colorDepth = data.readUInt8(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x0f
   );
   console.log(`  Color depth: ${colorDepth}`);
+  sprite.colorDepth = colorDepth;
 
   const dataOffset = data.readUInt32LE(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x10
@@ -205,6 +190,8 @@ for (let spriteIndex = 0; spriteIndex < spriteCount; spriteIndex++) {
     spriteListOffset + spriteIndex * spriteNodeSize + 0x14
   );
   console.log(`  Data: offset ${dataOffset}, length ${dataLength}`);
+  sprite.dataOffset = dataOffset;
+  sprite.dataLength = dataLength;
   if (dataLength === 0) {
     throw new Error(`Invalid sprite, length: 0`);
   }
@@ -213,76 +200,27 @@ for (let spriteIndex = 0; spriteIndex < spriteCount; spriteIndex++) {
     spriteListOffset + spriteIndex * spriteNodeSize + 0x18
   );
   console.log(`  Palette index: ${paletteIndex}`);
+  sprite.paletteIndex = paletteIndex;
   const loadMode = data.readUInt16LE(
     spriteListOffset + spriteIndex * spriteNodeSize + 0x1a
   );
   console.log(`  Load Mode: ${loadMode}`);
+  sprite.loadMode = loadMode;
 
   const spriteBuffer = data.subarray(
     paletteBankOffset + dataOffset,
     paletteBankOffset + dataOffset + dataLength
   );
-  switch (compressionMethod) {
-    case "RLE5":
-      {
-        console.error("TODO RLE5");
-      }
-      break;
-    case "RLE8":
-      {
-        const sprite = decodeRLE8(
-          spriteBuffer,
-          imageWidth,
-          imageHeight,
-          palettes[paletteIndex]
-        );
-        saveAsPNG(
-          sprite,
-          imageWidth,
-          imageHeight,
-          `sprites/${spriteGroup}-${spriteNumber}.png`
-        );
-      }
-      break;
-    case "LZ5":
-      {
-        const sprite = decodeLZ5(
-          spriteBuffer,
-          imageWidth,
-          imageHeight,
-          palettes[paletteIndex]
-        );
-        saveAsPNG(
-          sprite,
-          imageWidth,
-          imageHeight,
-          `sprites/${spriteGroup}-${spriteNumber}.png`
-        );
-      }
-      break;
-    case "PNG8":
-      {
-        const sprite = decodePNG8(
-          spriteBuffer,
-          imageWidth,
-          imageHeight,
-          palettes[paletteIndex]
-        );
-        saveAsPNG(
-          sprite,
-          imageWidth,
-          imageHeight,
-          `sprites/${spriteGroup}-${spriteNumber}.png`
-        );
-      }
-      break;
-    case "PNG24":
-    case "PNG32": {
-      var png = PNG.sync.read(spriteBuffer.subarray(4));
-      var options = { colorType: 6 };
-      var buffer = PNG.sync.write(png, options);
-      writeFileSync(`sprites/${spriteGroup}-${spriteNumber}.png`, buffer);
-      console.log(`sprites/${spriteGroup}-${spriteNumber}.png`);
-    }
-  }
+  sprite.spriteBuffer = spriteBuffer;
+  saveSpriteAsPng(
+    spriteGroup,
+    spriteNumber,
+    spriteBuffer,
+    imageWidth,
+    imageHeight,
+    palettes[paletteIndex],
+    compressionMethod
+  );
+
+  sprites.push(sprite);
 }
