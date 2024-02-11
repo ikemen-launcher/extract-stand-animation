@@ -11,27 +11,46 @@ export default function decodePNG8(buffer, width, height, palette) {
 
   const data = buffer.subarray(rawDataOffset);
 
-  const isPNG8 = data.subarray(25, 29).toString('hex') === '03000800';
+  const signature = data.subarray(25, 29).toString('hex');
+  const isPNG8 = signature === '03000800';
   if (!isPNG8) {
-    // throw new Error('Not PNG8');
+    //throw new Error(`Not PNG8: ${signature}`);
     // SFF contains invalid PNG8 signature (=03000000)
   }
 
   // Replace the palette
   const paletteStart = 33 + 8; // 33 because it contains PNG signature
   const paletteChunkSignatureLength = 8;
-  const paletteEnd = paletteStart + paletteChunkSignatureLength + 768; // 256 * 3 color components (RGB)
+  const paletteEnd = paletteStart + 768 + paletteChunkSignatureLength; // 256 * 3 color components (RGB)
   const originalPalette = data.subarray(paletteStart, paletteEnd);
-  
-  for (let paletteIndex = 0, p = 0; paletteIndex < palette.length && p < originalPalette.length; paletteIndex += 4, p += 3) {
-    const red = palette[paletteIndex + 0];
-    const green = palette[paletteIndex + 1];
-    const blue = palette[paletteIndex + 2];
-    //const alpha = palette[paletteIndex + 3]; ignore alpha from the palette
 
-    originalPalette[p + 0] = red;
-    originalPalette[p + 1] = green;
-    originalPalette[p + 2] = blue;
+  let originalPaletteAlreadyOk = false;
+  for (let colorIndex = 0; colorIndex < 256; colorIndex++) {
+    const red = originalPalette[colorIndex];
+    const green = originalPalette[colorIndex + 1];
+    const blue = originalPalette[colorIndex + 2];
+
+    // Debug
+    //console.log(` R ${red}, G ${green}, B ${blue}`);
+
+    if (red !== 0 || green !== 0 || blue !== 0) {
+      originalPaletteAlreadyOk = true;
+      break;
+    }
+  }
+  
+  if (!originalPaletteAlreadyOk) {
+
+    for (let paletteIndex = 0, p = 0; paletteIndex < palette.length && p < originalPalette.length; paletteIndex += 4, p += 3) {
+      const red = palette[paletteIndex + 0];
+      const green = palette[paletteIndex + 1];
+      const blue = palette[paletteIndex + 2];
+      //const alpha = palette[paletteIndex + 3]; ignore alpha from the palette
+      
+      originalPalette[p + 0] = red;
+      originalPalette[p + 1] = green;
+      originalPalette[p + 2] = blue;
+    }
   }
 
   /*

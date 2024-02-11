@@ -209,6 +209,6 @@ export default function extractSpritesFromSFFV2(data) {
   
     sprites.push(sprite);
 
-    printSpriteProgression(spriteIndex, spriteCount);
+    printSpriteProgression(spriteIndex, spriteCount, spriteGroup, spriteNumber);
   }
 }

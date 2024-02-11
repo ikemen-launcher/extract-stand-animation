@@ -110,6 +110,6 @@ export default function extractSpritesFromSFFV1(data) {
     sprites.push(sprite);
     spriteOffset = nextSpriteOffset;
 
-    printSpriteProgression(spriteIndex, spriteCount);
+    printSpriteProgression(spriteIndex, spriteCount, spriteGroup, spriteNumber);
   }
 }
