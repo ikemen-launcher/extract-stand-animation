@@ -1,3 +1,5 @@
+import { resolve } from 'node:path';
+import { writeFileSync } from 'node:fs';
 import saveSpriteAsPng from './saveSpriteAsPng.mjs';
 import printSpriteProgression from './printSpriteProgression.mjs';
 
@@ -24,7 +26,17 @@ function stringifyCompressionMethod(value) {
   }
 }
 
-export default function extractSpritesFromSFFV2(data) {
+export default function extractSpritesFromSFFV2(data, outputDirectory, options) {
+  const metadataFilePath = resolve(outputDirectory, 'metadata.json');
+  const metadata = {};
+
+  const build = data.readUInt8(12);
+  const patch = data.readUInt8(13);
+  const minor = data.readUInt8(14);
+  const major = data.readUInt8(15);
+  const version = `${major}.${minor}.${patch}.${build}`;
+  metadata.version = version;
+
   const paletteMapOffset = data.readUInt32LE(0x1a);
   //console.log(`Palette map offset: ${paletteMapOffset}`);
   
@@ -50,6 +62,8 @@ export default function extractSpritesFromSFFV2(data) {
   //console.log(`OnLoad DataSize: ${onLoadDataSize}`);
   
   // ??? between 0x44 and paletteMapOffset
+
+  writeFileSync(metadataFilePath, JSON.stringify(metadata, null, 2));
   
   // Palette Map, linear 16bytes per map
   const paletteMapSize = 16;

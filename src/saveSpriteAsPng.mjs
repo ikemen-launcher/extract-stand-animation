@@ -1,4 +1,3 @@
-import { exit } from 'node:process';
 import { writeFileSync } from "node:fs";
 import { PNG } from "pngjs";
 import decodeRLE8 from "./decodeRLE8.mjs";

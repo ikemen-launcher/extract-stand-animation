@@ -2,7 +2,7 @@ import saveSpriteAsPng from './saveSpriteAsPng.mjs';
 import convertPaletteRGBtoRGBA from './convertPaletteRGBtoRGBA.mjs';
 import printSpriteProgression from './printSpriteProgression.mjs';
 
-export default function extractSpritesFromSFFV1(data) {
+export default function extractSpritesFromSFFV1(data, outputDirectory, options) {
   const nbGroups = data.readUInt32LE(16);
   //console.log(`nbGroups: ${nbGroups}`);
 
