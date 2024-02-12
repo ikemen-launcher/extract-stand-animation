@@ -1,5 +1,19 @@
 {
+  "name": "sff-extractor",
+  "description": "Extract information and images contained in a SFF file (Elecbyte format)",
+  "version": "1.0.0",
+  "author": "neolao <contact@neolao.com>",
+  "private": false,
+  "repository": "https://github.com/ikemen-launcher/sff-extractor.git",
+  "license": "MIT",
+  "bin": {
+    "sff-extractor": "./index.mjs"
+  },
+  "engines": {
+    "node": ">= 20"
+  },
   "dependencies": {
-    "pngjs": "^7.0.0"
+    "pngjs": "^7.0.0",
+    "yargs": "^17.7.2"
   }
 }
