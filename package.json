@@ -6,14 +6,11 @@
   "private": false,
   "repository": "https://github.com/ikemen-launcher/sff-extractor.git",
   "license": "MIT",
-  "bin": {
-    "sff-extractor": "./index.mjs"
-  },
+  "main": "./index.mjs",
   "engines": {
     "node": ">= 20"
   },
   "dependencies": {
-    "pngjs": "^7.0.0",
-    "yargs": "^17.7.2"
+    "pngjs": "^7.0.0"
   }
 }

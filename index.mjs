@@ -1,56 +1,52 @@
-#!/usr/bin/env node
+import extractSpritesFromSFFV1 from "./src/extractSpritesFromSFFV1.mjs";
+import extractMetadataFromSFFV2 from "./src/extractMetadataFromSFFV2.mjs";
+import extractPalettesFromSFFV2 from "./src/extractPalettesFromSFFV2.mjs";
+import extractSpritesFromSFFV2 from "./src/extractSpritesFromSFFV2.mjs";
 
-import { readFileSync, existsSync, mkdirSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
-import extract from './src/extract.mjs';
+export default function extract(buffer, providedOptions) {
+  const options = {
+    sprites: true,
+    palettes: true,
+    paletteBuffer: true,
+    paletteTable: true,
+    ...providedOptions,
+  };
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const pkg = JSON.parse(readFileSync(`${__dirname}/package.json`));
+  if (buffer.length < 12) {
+    throw new Error(`Invalid file: too small (< 12 bytes)`);
+  }
 
-const argv = yargs(hideBin(process.argv))
-  .usage("$0 -f <file> -o <directory>")
+  const signature = buffer.toString("ascii", 0, 11);
+  if (signature !== "ElecbyteSpr") {
+    throw new Error(`Invalid file signature: "${signature}"`);
+  }
 
-  .alias("f", "file")
-  .describe("f", "SFF file")
-  .requiresArg("f")
+  const data = {};
 
-  .alias("o", "output")
-  .describe("o", "Output directory")
-  .requiresArg("o")
+  const majorVersion = buffer.readUInt8(15);
+  switch (majorVersion) {
+    case 1:
+      // extract metadata
+      // extract palettes
+      extractSpritesFromSFFV1(buffer, outputDirectory, options);
+      break;
+    case 2:
+      const metadata = extractMetadataFromSFFV2(buffer);
+      Object.assign(data, metadata);
 
-  .check((argv, options) => {
-    if (!argv.file) {
-      throw new Error('Please provide a SFF file.');
-    }
-    if (!argv.output) {
-      throw new Error('Please provide the output directory.');
-    }
+      const palettes = extractPalettesFromSFFV2(buffer, metadata, options);
+      if (options.palettes) {
+        Object.assign(data, { palettes });
+      }
 
-    const filePath = resolve(argv.file);
-    if (!existsSync(filePath)) {
-      throw new Error(`SFF file not found: ${filePath}`);
-    }
-    argv.file = filePath;
-    
-    const outputDirectory = resolve(argv.output);
-    try {
-      mkdirSync(outputDirectory, { recursive: true });
-    } catch (error) {
-      throw new Error(`Unable to create output directory: ${outputDirectory}`);
-    }
-    argv.output = outputDirectory;
+      if (options.sprites) {
+        const sprites = extractSpritesFromSFFV2(buffer, metadata, palettes);
+        Object.assign(data, { sprites });
+      }
+      break;
+    default:
+      throw new Error(`Invalid version: ${version}`);
+  }
 
-    return true;
-  })
-
-  .example([["$0 -f kfm.sff -o output"]])
-  .help()
-  .version(pkg.version)
-  .parse();
-
-console.log(argv);
-extract(argv.file, argv.output, argv);
+  return data;
+}
