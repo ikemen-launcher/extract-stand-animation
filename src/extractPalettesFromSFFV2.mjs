@@ -1,4 +1,4 @@
-export default function extractPalettesFromSFFV2(buffer, metadata, options) {
+export default function extractPalettesFromSFFV2(buffer, metadata) {
   // Palette Map, linear 16bytes per map
   const paletteMapSize = 16;
   const palettes = [];
@@ -26,40 +26,19 @@ export default function extractPalettesFromSFFV2(buffer, metadata, options) {
       metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x0c
     );
 
-    const palette = {
+    const paletteBuffer = buffer.subarray(
+      metadata.paletteBankOffset + dataOffset,
+      metadata.paletteBankOffset + dataOffset + dataLength
+    );
+
+    palettes.push({
       group,
       number,
       colorCount,
       dataOffset,
       dataLength,
-    };
-
-    if (options.paletteBuffer) {
-      const paletteBuffer = buffer.subarray(
-        metadata.paletteBankOffset + dataOffset,
-        metadata.paletteBankOffset + dataOffset + dataLength
-      );
-      Object.assign(palette, { buffer: paletteBuffer });
-    }
-
-    if (options.paletteTable) {
-      const paletteBuffer = buffer.subarray(
-        metadata.paletteBankOffset + dataOffset,
-        metadata.paletteBankOffset + dataOffset + dataLength
-      );
-      const table = [];
-      for (let i = 0; i < paletteBuffer.length; i += 4) {
-        const red = paletteBuffer[i];
-        const green = paletteBuffer[i + 1];
-        const blue = paletteBuffer[i + 2];
-        const alpha = paletteBuffer[i + 3];
-        table.push([red, green, blue, alpha]);
-      }
-
-      Object.assign(palette, { table });
-    }
-
-    palettes.push(palette);
+      buffer: paletteBuffer,
+    });
   }
 
   return palettes;

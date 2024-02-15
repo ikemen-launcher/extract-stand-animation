@@ -4,10 +4,13 @@ Extract information and images contained in a SFF file (Elecbyte format).
 
 ## Options
 
-| Option   | Description       | Type    | Default value |
-| -------- | ----------------- | ------- | ------------- |
-| sprites  | Includes sprites  | Boolean | `true`        |
-| palettes | Includes palettes | Boolean | `true`        |
+| Option        | Description                           | Type    | Default value |
+| ------------- | ------------------------------------- | ------- | ------------- |
+| palettes      | Includes palettes                     | Boolean | `true`        |
+| paletteBuffer | Includes buffer of each palette       | Boolean | `true`        |
+| paletteTable  | Includes colors table of each palette | Boolean | `true`        |
+| sprites       | Includes sprites                      | Boolean | `true`        |
+| spriteBuffer  | Includes buffer of each sprite        | Boolean | `true`        |
 
 ## Examples
 

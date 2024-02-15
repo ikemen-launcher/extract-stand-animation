@@ -5,10 +5,11 @@ import extractSpritesFromSFFV2 from "./src/extractSpritesFromSFFV2.mjs";
 
 export default function extract(buffer, providedOptions) {
   const options = {
-    sprites: true,
     palettes: true,
     paletteBuffer: true,
     paletteTable: true,
+    sprites: true,
+    spriteBuffer: true,
     ...providedOptions,
   };
 
@@ -35,13 +36,40 @@ export default function extract(buffer, providedOptions) {
       Object.assign(data, metadata);
 
       const palettes = extractPalettesFromSFFV2(buffer, metadata, options);
+      const paletteBuffers = palettes.map((palette) => palette.buffer);
       if (options.palettes) {
         Object.assign(data, { palettes });
+
+        if (options.paletteTable) {
+          for (const palette of palettes) {
+            const table = [];
+            for (let i = 0; i < palette.buffer.length; i += 4) {
+              const red = palette.buffer[i];
+              const green = palette.buffer[i + 1];
+              const blue = palette.buffer[i + 2];
+              const alpha = palette.buffer[i + 3];
+              table.push([red, green, blue, alpha]);
+            }
+            palette.table = table;
+          }
+        }
+
+        if (!options.paletteBuffer) {
+          for (const palette of palettes) {
+            delete palette.buffer;
+          }
+        }
       }
 
+      const sprites = extractSpritesFromSFFV2(buffer, metadata, paletteBuffers);
       if (options.sprites) {
-        const sprites = extractSpritesFromSFFV2(buffer, metadata, palettes);
         Object.assign(data, { sprites });
+
+        if (!options.spriteBuffer) {
+          for (const sprite of sprites) {
+            delete sprite.buffer;
+          }
+        }
       }
       break;
     default:
