@@ -2,6 +2,7 @@ import extractSpritesFromSFFV1 from "./src/extractSpritesFromSFFV1.mjs";
 import extractMetadataFromSFFV2 from "./src/extractMetadataFromSFFV2.mjs";
 import extractPalettesFromSFFV2 from "./src/extractPalettesFromSFFV2.mjs";
 import extractSpritesFromSFFV2 from "./src/extractSpritesFromSFFV2.mjs";
+import decodeSpriteBuffer from "./src/decodeSpriteBuffer.mjs";
 
 export default function extract(buffer, providedOptions) {
   const options = {
@@ -10,6 +11,7 @@ export default function extract(buffer, providedOptions) {
     paletteTable: true,
     sprites: true,
     spriteBuffer: true,
+    decodeSpriteBuffer: false,
     ...providedOptions,
   };
 
@@ -64,6 +66,23 @@ export default function extract(buffer, providedOptions) {
       const sprites = extractSpritesFromSFFV2(buffer, metadata, paletteBuffers);
       if (options.sprites) {
         Object.assign(data, { sprites });
+
+        if (options.decodeSpriteBuffer) {
+          for (const sprite of sprites) {
+            if (sprite.linkedIndex > 0) {
+              const linkedSprite = sprites[sprite.linkedIndex];
+              sprite.decodedBuffer = linkedSprite.decodedBuffer;
+            } else {
+              sprite.decodedBuffer = decodeSpriteBuffer(
+                sprite.compressionMethod,
+                sprite.buffer,
+                sprite.width,
+                sprite.height,
+                paletteBuffers[sprite.paletteIndex]
+              );
+            }
+          }
+        }
 
         if (!options.spriteBuffer) {
           for (const sprite of sprites) {

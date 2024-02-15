@@ -1,5 +1,3 @@
-import saveSpriteAsPng from "./saveSpriteAsPng.mjs";
-
 function stringifyCompressionMethod(value) {
   switch (value) {
     default:
@@ -55,18 +53,6 @@ export default function extractSpritesFromSFFV2(data, metadata, palettes) {
     );
 
     if (linkedIndex > 0) {
-      /*
-      const linkedSprite = sprites[linkedIndex];
-      saveSpriteAsPng(
-        spriteGroup,
-        spriteNumber,
-        linkedSprite.spriteBuffer,
-        linkedSprite.width,
-        linkedSprite.height,
-        palettes[linkedSprite.paletteIndex],
-        linkedSprite.compressionMethod
-      );
-      */
       sprites.push({
         group,
         number,
