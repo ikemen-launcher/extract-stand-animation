@@ -31,18 +31,34 @@ function saveAsPNG(image, width, height, outputPath) {
   writeFileSync(outputPath, buffer);
 }
 
-const buffer = readFileSync(`${__dirname}/files/cyclops-v1.sff`);
+const palette = readFileSync(`${__dirname}/files/cyclops-v1-palette2.act`);
+//const buffer = readFileSync(`${__dirname}/files/cyclops-v1.sff`);
+const buffer = readFileSync(`${__dirname}/files/cvsryu-v1.sff`);
 const data = extract(buffer, {
   palettes: true,
   paletteBuffer: false,
   paletteTable: true,
   spriteBuffer: false,
   decodeSpriteBuffer: true,
-  spriteGroups: [0, 9000],
+  //spriteGroups: [0, 4050, 9000],
+  spriteGroups: [42],
+  //spriteGroups: [9000],
+  //applyPalette: palette,
 });
 
+// 109 220 4 1
+//console.log(palette.length); process.exit(0);
+/*
+for (let rgbIndex = 0; rgbIndex < palette.length; rgbIndex+=3) {
+  console.log(`${palette[rgbIndex + 0]} ${palette[rgbIndex + 1]} ${palette[rgbIndex + 2]}`);
+}
+*/
+
 for (const sprite of data.sprites) {
-  console.log(sprite.paletteTable);
+  //console.log(sprite.index, sprite.group, sprite.number, sprite.samePalette);
+  //console.log(sprite);
+
+  ///*
   console.log(
     `Generating sprite, group ${sprite.group}, number ${sprite.number} ...`
   );
@@ -52,4 +68,5 @@ for (const sprite of data.sprites) {
     sprite.height,
     `${__dirname}/sprites/${sprite.group}-${sprite.number}.png`
   );
+  //*/
 }

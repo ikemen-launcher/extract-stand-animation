@@ -5,6 +5,7 @@ import extractPalettesFromSFFV2 from "./src/extractPalettesFromSFFV2.mjs";
 import extractSpritesFromSFFV2 from "./src/extractSpritesFromSFFV2.mjs";
 import decodeSpriteBuffer from "./src/decodeSpriteBuffer.mjs";
 import convertPaletteRGBABufferToTable from "./src/convertPaletteRGBABufferToTable.mjs";
+import convertPaletteRGBtoRGBA from "./src/convertPaletteRGBtoRGBA.mjs";
 
 export default function extract(buffer, providedOptions) {
   const options = {
@@ -39,34 +40,15 @@ export default function extract(buffer, providedOptions) {
         if (options.sprites) {
           let sprites = extractSpritesFromSFFV1(buffer, metadata);
 
-          if (options.spriteGroups.length > 0) {
-            sprites = sprites.filter((sprite) => {
-              return options.spriteGroups.includes(sprite.group);
-            });
-          }
-
-          Object.assign(data, { sprites });
-
           for (const sprite of sprites) {
-            if (options.palettes) {
-              if (options.paletteTable) {
-                sprite.paletteTable = convertPaletteRGBABufferToTable(
-                  sprite.palette
-                );
-              }
-
-              if (!options.paletteBuffer) {
-                delete sprite.palette;
-              }
-            } else {
-              delete sprite.palette;
-            }
-
             if (options.decodeSpriteBuffer) {
               if (sprite.linkedSpriteIndex > 0) {
                 const linkedSprite = sprites[sprite.linkedSpriteIndex];
                 sprite.decodedBuffer = linkedSprite.decodedBuffer;
               } else {
+                if (options.applyPalette && sprite.samePalette != 0) {
+                  sprite.palette = convertPaletteRGBtoRGBA(options.applyPalette);
+                }
                 sprite.decodedBuffer = decodeSpriteBuffer(
                   "PCX",
                   sprite.buffer,
@@ -80,7 +62,29 @@ export default function extract(buffer, providedOptions) {
             if (!options.spriteBuffer) {
               delete sprite.buffer;
             }
+
+            if (options.palettes) {
+              if (options.paletteTable) {
+                sprite.paletteTable = convertPaletteRGBABufferToTable(
+                  sprite.palette
+                );
+              }
+
+              if (!options.paletteBuffer) {
+                delete sprite.palette;
+              }
+            } else {
+              delete sprite.palette;
+            }
           }
+
+          if (options.spriteGroups.length > 0) {
+            sprites = sprites.filter((sprite) => {
+              return options.spriteGroups.includes(sprite.group);
+            });
+          }
+
+          Object.assign(data, { sprites });
         }
       }
       break;

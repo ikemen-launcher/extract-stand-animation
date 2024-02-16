@@ -1,7 +1,6 @@
 import convertPaletteRGBtoRGBA from './convertPaletteRGBtoRGBA.mjs';
 
 export default function decodePCX(buffer, width, height, palette) {
-  const metadata = {};
   let offset = 0;
 
   const id = buffer.readUInt8(offset);
@@ -45,7 +44,7 @@ export default function decodePCX(buffer, width, height, palette) {
   offset += 2;
   
   const colorMap = []; // 16 colors rgb
-  for (var i = 0; i < 16; i++) {
+  for (let i = 0; i < 16; i++) {
     var c = [];
     c[0] = buffer.readUInt8(offset);
     offset += 1;
@@ -72,27 +71,43 @@ export default function decodePCX(buffer, width, height, palette) {
   //console.log(`  PCX paletteInfo: ${paletteInfo}`);
   offset += 2;
 
-  let imagePalette = null; // 256 colors rgb
-  if (palette) {
-    imagePalette = palette;
-  } else {
-    const paletteRGB = buffer.subarray(buffer.length - 256 * 3);
-    const signature = buffer.readUInt8(buffer.length - 256 * 3 - 1);
-    imagePalette = convertPaletteRGBtoRGBA(paletteRGB);
-  }
-
-  // Debug palette
-  /*
-  for (let colorIndex = 0; colorIndex < imagePalette.length; colorIndex += 4) {
-    console.log(`    ${imagePalette[colorIndex]}, ${imagePalette[colorIndex + 1]}, ${imagePalette[colorIndex + 2]}, ${imagePalette[colorIndex + 3]}`);
-  }
-  //*/
-
   const out = Buffer.alloc(pcxWidth * pcxHeight * 4);
-  
+
   offset = 128;
-  let tempX = x;
-  let tempY = y;
+  /*
+  const rle = buffer.subarray(offset);
+    let i = 0, j = 0, k = 0, w = pcxWidth;
+    while (j < out.length) {
+      let n = 1;
+      let d = rle[i];
+        if (i < rle.length - 1) {
+            i++;
+        }
+        if (d >= 0xc0) {
+            n = d & 0x3f;
+            d = rle[i];
+            if (i < rle.length - 1) {
+                i++;
+            }
+        }
+        while (n > 0) {
+            if (k < w && j < out.length) {
+                out[j] = d;
+                j++;
+            }
+          k++;
+            if (k === pcxHeight) {
+                k = 0;
+                n = 1;
+            }
+            n--;
+        }
+    }
+    //*/
+
+  ///*
+  let tempX = 0;
+  let tempY = 0;
   while (tempY < pcxHeight) {
     var b = buffer.readUInt8(offset);
     offset += 1;
@@ -108,21 +123,23 @@ export default function decodePCX(buffer, width, height, palette) {
       value = b;
     }
     for (var i = 0; i < runcount; i++) {
-      if (value != 0) {
+      const isTransparent = value === 0;
+      if (!isTransparent) {
         var j = (tempX + tempY * pcxWidth) * 4;
         const paletteColorIndex = value * 4;
-        out[j + 0] = imagePalette[paletteColorIndex + 0];
-        out[j + 1] = imagePalette[paletteColorIndex + 1];
-        out[j + 2] = imagePalette[paletteColorIndex + 2];
-        out[j + 3] = imagePalette[paletteColorIndex + 3];
+        out[j + 0] = palette[paletteColorIndex + 0];
+        out[j + 1] = palette[paletteColorIndex + 1];
+        out[j + 2] = palette[paletteColorIndex + 2];
+        out[j + 3] = palette[paletteColorIndex + 3];
       }
       tempX++;
       if (tempX > pcxWidth) {
         tempY++;
-        tempX = x;
+        tempX = 0;
       }
     }
   }
+  //*/
 
   return out;
 }
