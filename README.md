@@ -12,6 +12,7 @@ Extract information and images contained in a SFF file (Elecbyte format).
 | sprites            | Includes sprites                      | Boolean | `true`        |
 | spriteBuffer       | Includes buffer of each sprite        | Boolean | `true`        |
 | decodeSpriteBuffer | Decode buffer of each sprite          | Boolean | `false`       |
+| spriteGroup        | Filter sprites by group               | String  | `""`          |
 
 ## Examples
 

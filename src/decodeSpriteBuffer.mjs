@@ -1,8 +1,8 @@
-import { PNG } from "pngjs";
-import decodeRLE8 from "./decodeRLE8.mjs";
-import decodeLZ5 from "./decodeLZ5.mjs";
-import decodePNG8 from "./decodePNG8.mjs";
-import decodePCX from "./decodePCX.mjs";
+import { PNG } from 'pngjs';
+import decodeRLE8 from './decodeRLE8.mjs';
+import decodeLZ5 from './decodeLZ5.mjs';
+import decodePNG8 from './decodePNG8.mjs';
+import decodePCX from './decodePCX.mjs';
 
 // The returned buffer is in RGBA, each color component encoded in 1 byte
 export default function decodeSpriteBuffer(
