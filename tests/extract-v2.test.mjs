@@ -1,9 +1,10 @@
 import test from "node:test";
 import assert from "node:assert";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import extract from "../index.mjs";
+import convertSpriteDecodedBufferToPng from "../src/convertSpriteDecodedBufferToPng.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -13,4 +14,75 @@ test("Extract v2 metadata", () => {
   const data = extract(buffer, { sprites: false, palettes: false });
 
   assert.strictEqual(data.version, "2.0.1.0");
+});
+
+test("Extract v2 sprite RLE8", () => {
+  const buffer = readFileSync(`${__dirname}/files/kfm-v2.sff`);
+  const data = extract(buffer, {
+    palettes: false,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [9000],
+  });
+
+  // group 9000, number 1
+  const sprite = data.sprites[1];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-001_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-001.png`,
+  );
+  assert.strictEqual(Buffer.compare(expectedSpritePng, spritePng), 0);
+});
+
+test("Extract v2 sprite LZ5", () => {
+  const buffer = readFileSync(`${__dirname}/files/kfm-v2.sff`);
+  const data = extract(buffer, {
+    palettes: false,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-002_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-002.png`,
+  );
+  assert.strictEqual(Buffer.compare(expectedSpritePng, spritePng), 0);
+});
+
+test("Extract v2 sprite PNG8", () => {
+  const buffer = readFileSync(`${__dirname}/files/kfm-v2.sff`);
+  const data = extract(buffer, {
+    palettes: false,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-003_test.png`, spritePng);
+  /*
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-003.png`,
+  );
+  assert.strictEqual(Buffer.compare(expectedSpritePng, spritePng), 0);
+  */
 });
