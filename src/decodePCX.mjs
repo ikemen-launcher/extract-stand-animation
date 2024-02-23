@@ -1,5 +1,3 @@
-import convertPaletteRGBtoRGBA from "./convertPaletteRGBtoRGBA.mjs";
-
 function implementation1(buffer, pcxWidth, pcxHeight, palette) {
   const out = Buffer.alloc(pcxWidth * pcxHeight * 4);
 
@@ -167,6 +165,13 @@ export default function decodePCX(buffer, width, height, palette) {
   offset = 128;
   const imageData = buffer.subarray(offset);
 
-  return implementation2(imageData, pcxWidth, pcxHeight, encoding, bpl, palette);
+  return implementation2(
+    imageData,
+    pcxWidth,
+    pcxHeight,
+    encoding,
+    bpl,
+    palette,
+  );
   //return implementation1(imageData, pcxWidth, pcxHeight, palette);
 }
