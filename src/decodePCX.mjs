@@ -160,8 +160,6 @@ export default function decodePCX(buffer, width, height, palette) {
   const paletteInfo = buffer.readUInt16LE(offset);
   offset += 2;
 
-  const out = Buffer.alloc(pcxWidth * pcxHeight * 4);
-
   offset = 128;
   const imageData = buffer.subarray(offset);
 

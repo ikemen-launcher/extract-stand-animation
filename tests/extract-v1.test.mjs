@@ -36,5 +36,52 @@ test("Extract v1 sprite", () => {
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v1-sprite-001.png`,
   );
-  assert.strictEqual(Buffer.compare(expectedSpritePng, spritePng), 0);
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
+
+test.skip("Extract v1 last sprite", () => {
+  const buffer = readFileSync(`${__dirname}/files/arale-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [10302],
+  });
+  const sprite = data.sprites[0];
+  console.log(sprite);
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-002_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-002.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
+
+test("Extract v1 sprite length 0", () => {
+  const buffer = readFileSync(`${__dirname}/files/crab-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+  });
+  const sprite = data.sprites[75];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-003_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-003.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
 });

@@ -8,7 +8,13 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     index < metadata.spriteCount;
     index++
   ) {
-    const nextSpriteOffset = data.readUInt32LE(spriteOffset);
+    let nextSpriteOffset = data.readUInt32LE(spriteOffset);
+    // Sometimes, the nextSpriteOffset is 0
+    // It happens for the last sprite
+    // It means the section goes to the end
+    if (nextSpriteOffset === 0) {
+      nextSpriteOffset = data.length - 1;
+    }
     const spriteSection = data.subarray(spriteOffset, nextSpriteOffset);
 
     // Subfile length (not including header)
@@ -29,7 +35,7 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     const comment = spriteSection.toString("ascii", 19, 19 + 14);
 
     const c00 = index > 0 || (group === 0 && number === 0);
-    const paletteSize = (c00 || samePalette) ? 0 : 256 * 3;
+    const paletteSize = c00 || samePalette ? 0 : 256 * 3;
 
     let palette = null;
     if (samePalette) {
@@ -37,12 +43,30 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     } else {
       const paletteRGB = data.subarray(
         nextSpriteOffset - 256 * 3,
-        nextSpriteOffset
+        nextSpriteOffset,
       );
       palette = convertPaletteRGBtoRGBA(paletteRGB);
       previousPalette = palette;
     }
 
+    if (length === 0) {
+      sprites.push({
+        ...sprites[index - 1],
+        index,
+        x,
+        y,
+        group,
+        number,
+        linkedSpriteIndex,
+        samePalette,
+        comment,
+      });
+      spriteOffset = nextSpriteOffset;
+      continue;
+    }
+
+    //console.log('spriteOffset', spriteOffset, 'nextSpriteOffset', nextSpriteOffset, 'length', length);
+    //console.log('group', group, 'number', number, 'samePalette', samePalette, 'linkedSpriteIndex', linkedSpriteIndex);
     const imageBuffer =
       linkedSpriteIndex === 0
         ? data.subarray(spriteOffset + 32, nextSpriteOffset - paletteSize)
@@ -51,6 +75,7 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     // Width and height from PCX format
     const width = imageBuffer.readUInt16LE(8);
     const height = imageBuffer.readUInt16LE(10);
+    //console.log('width', width, 'height', height);
 
     sprites.push({
       index,

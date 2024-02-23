@@ -59,7 +59,7 @@ test("Extract v2 sprite LZ5", () => {
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v2-sprite-002.png`,
   );
-  assert.strictEqual(Buffer.compare(expectedSpritePng, spritePng), 0);
+  assert.ok(spritePng.equals(expectedSpritePng));
 });
 
 test("Extract v2 sprite PNG8", () => {
@@ -83,6 +83,6 @@ test("Extract v2 sprite PNG8", () => {
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v2-sprite-003.png`,
   );
-  assert.strictEqual(Buffer.compare(expectedSpritePng, spritePng), 0);
+  assert.ok(spritePng.equals(expectedSpritePng));
   */
 });
