@@ -8,9 +8,9 @@ import extract from "../index.mjs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-test("Extract v1 metadata", () => {
+test("Extract v2 metadata", () => {
   const buffer = readFileSync(`${__dirname}/files/kfm-v2.sff`);
   const data = extract(buffer, { sprites: false, palettes: false });
 
-  assert.strictEqual(data.version, "1.0.1.0");
+  assert.strictEqual(data.version, "2.0.1.0");
 });
