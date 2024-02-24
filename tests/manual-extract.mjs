@@ -7,7 +7,7 @@ import convertSpriteDecodedBufferToPng from "../src/convertSpriteDecodedBufferTo
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const buffer = readFileSync(`${__dirname}/files/crab-v1.sff`);
+const buffer = readFileSync(`${__dirname}/files/greenarrow-v1.sff`);
 const metadata = extract(buffer, { sprites: false, palettes: false });
 console.log(metadata);
 

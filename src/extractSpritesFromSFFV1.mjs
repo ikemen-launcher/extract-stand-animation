@@ -25,7 +25,10 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     const y = spriteSection.readUInt16LE(10);
     const group = spriteSection.readUInt16LE(12);
     const number = spriteSection.readUInt16LE(14);
-    const linkedSpriteIndex = spriteSection.readUInt16LE(16);
+    let linkedSpriteIndex = spriteSection.readUInt16LE(16);
+    if (linkedSpriteIndex == index) {
+      linkedSpriteIndex = 0;
+    }
 
     // 0 =
     // 1 =
@@ -38,7 +41,7 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     const paletteSize = c00 || samePalette ? 0 : 256 * 3;
 
     let palette = null;
-    if (samePalette) {
+    if (samePalette && previousPalette) {
       palette = previousPalette;
     } else {
       const paletteRGB = data.subarray(

@@ -85,3 +85,29 @@ test("Extract v1 sprite length 0 (copy of the previous sprite)", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v1 sprite index == linked index", () => {
+  const buffer = readFileSync(`${__dirname}/files/greenarrow-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [5040],
+  });
+
+  // group 5040, number 20
+  const sprite = data.sprites[2];
+  console.log(sprite);
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-004_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-004.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
