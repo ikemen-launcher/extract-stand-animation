@@ -63,7 +63,7 @@ test.skip("Extract v1 last sprite", () => {
   assert.ok(spritePng.equals(expectedSpritePng));
 });
 
-test("Extract v1 sprite length 0", () => {
+test("Extract v1 sprite length 0 (copy of the previous sprite)", () => {
   const buffer = readFileSync(`${__dirname}/files/crab-v1.sff`);
   const data = extract(buffer, {
     palettes: true,

@@ -47,14 +47,16 @@ export default function extract(buffer, providedOptions) {
                 sprite.decodedBuffer = linkedSprite.decodedBuffer;
               } else {
                 if (options.applyPalette && sprite.samePalette != 0) {
-                  sprite.palette = convertPaletteRGBtoRGBA(options.applyPalette);
+                  sprite.palette = convertPaletteRGBtoRGBA(
+                    options.applyPalette,
+                  );
                 }
                 sprite.decodedBuffer = decodeSpriteBuffer(
                   "PCX",
                   sprite.buffer,
                   sprite.width,
                   sprite.height,
-                  sprite.palette
+                  sprite.palette,
                 );
               }
             }
@@ -66,7 +68,7 @@ export default function extract(buffer, providedOptions) {
             if (options.palettes) {
               if (options.paletteTable) {
                 sprite.paletteTable = convertPaletteRGBABufferToTable(
-                  sprite.palette
+                  sprite.palette,
                 );
               }
 
@@ -115,16 +117,8 @@ export default function extract(buffer, providedOptions) {
           let sprites = extractSpritesFromSFFV2(
             buffer,
             metadata,
-            paletteBuffers
+            paletteBuffers,
           );
-
-          if (options.spriteGroups.length > 0) {
-            sprites = sprites.filter((sprite) => {
-              return options.spriteGroups.includes(sprite.group);
-            });
-          }
-
-          Object.assign(data, { sprites });
 
           if (options.decodeSpriteBuffer) {
             for (const sprite of sprites) {
@@ -137,11 +131,19 @@ export default function extract(buffer, providedOptions) {
                   sprite.buffer,
                   sprite.width,
                   sprite.height,
-                  paletteBuffers[sprite.paletteIndex]
+                  paletteBuffers[sprite.paletteIndex],
                 );
               }
             }
           }
+
+          if (options.spriteGroups.length > 0) {
+            sprites = sprites.filter((sprite) => {
+              return options.spriteGroups.includes(sprite.group);
+            });
+          }
+
+          Object.assign(data, { sprites });
 
           if (!options.spriteBuffer) {
             for (const sprite of sprites) {
