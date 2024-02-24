@@ -76,8 +76,12 @@ export default function extractSpritesFromSFFV1(data, metadata) {
         : sprites[linkedSpriteIndex].buffer;
 
     // Width and height from PCX format
-    const width = imageBuffer.readUInt16LE(8);
-    const height = imageBuffer.readUInt16LE(10);
+    const minX = imageBuffer.readUInt16LE(4);
+    const minY = imageBuffer.readUInt16LE(6);
+    const maxX = imageBuffer.readUInt16LE(8);
+    const maxY = imageBuffer.readUInt16LE(10);
+    const width = maxX - minX + 1;
+    const height = maxY - minY + 1;
     //console.log('width', width, 'height', height);
 
     sprites.push({

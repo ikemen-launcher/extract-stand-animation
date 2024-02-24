@@ -99,7 +99,6 @@ test("Extract v1 sprite index == linked index", () => {
 
   // group 5040, number 20
   const sprite = data.sprites[2];
-  console.log(sprite);
   const spritePng = convertSpriteDecodedBufferToPng(
     sprite.decodedBuffer,
     sprite.width,

@@ -41,9 +41,8 @@ function implementation1(buffer, pcxWidth, pcxHeight, palette) {
 
 function implementation2(buffer, pcxWidth, pcxHeight, encoding, bpl, palette) {
   const unknownVariable = encoding == 1 ? bpl : 0;
-  const out = Buffer.alloc(pcxWidth * pcxHeight * 4);
 
-  const p = Buffer.alloc(pcxWidth * pcxHeight);
+  const p = Buffer.alloc((pcxWidth + 1) * (pcxHeight + 1));
   let i = 0,
     j = 0,
     k = 0,
@@ -62,7 +61,7 @@ function implementation2(buffer, pcxWidth, pcxHeight, encoding, bpl, palette) {
       }
     }
     while (n > 0) {
-      if (k < w && j < out.length) {
+      if (k < w && j < p.length) {
         p[j] = d;
         j++;
       }
@@ -75,6 +74,7 @@ function implementation2(buffer, pcxWidth, pcxHeight, encoding, bpl, palette) {
     }
   }
 
+  const out = Buffer.alloc((pcxWidth + 1) * (pcxHeight + 1) * 4);
   for (let ii = 0, aa = 0; ii < p.length; ii++, aa += 4) {
     const paletteColorIndex = p[ii] * 4;
 
@@ -100,6 +100,7 @@ function implementation2(buffer, pcxWidth, pcxHeight, encoding, bpl, palette) {
   return out;
 }
 
+// RLE = Run-Length Encoding => lossless compression
 export default function decodePCX(buffer, width, height, palette) {
   let offset = 0;
 
@@ -118,22 +119,22 @@ export default function decodePCX(buffer, width, height, palette) {
   }
   offset += 1;
 
-  const x = buffer.readUInt16LE(offset);
+  const minX = buffer.readUInt16LE(offset);
   offset += 2;
 
-  const y = buffer.readUInt16LE(offset);
+  const minY = buffer.readUInt16LE(offset);
   offset += 2;
 
-  let pcxWidth = buffer.readUInt16LE(offset);
+  let maxX = buffer.readUInt16LE(offset);
   offset += 2;
 
-  let pcxHeight = buffer.readUInt16LE(offset);
+  let maxY = buffer.readUInt16LE(offset);
   offset += 2;
 
-  const hres = buffer.readUInt16LE(offset);
+  const horizontalResolution = buffer.readUInt16LE(offset); // dpi
   offset += 2;
 
-  const vres = buffer.readUInt16LE(offset);
+  const verticalResolution = buffer.readUInt16LE(offset); // dpi
   offset += 2;
 
   const colorMap = []; // 16 colors rgb
@@ -151,10 +152,10 @@ export default function decodePCX(buffer, width, height, palette) {
   const reserved = buffer.readUInt8(offset);
   offset += 1;
 
-  const nbPlanes = buffer.readUInt8(offset);
+  const bitplanes = buffer.readUInt8(offset);
   offset += 1;
 
-  const bpl = buffer.readUInt16LE(offset);
+  const bytesPerRow = buffer.readUInt16LE(offset);
   offset += 2;
 
   const paletteInfo = buffer.readUInt16LE(offset);
@@ -163,13 +164,15 @@ export default function decodePCX(buffer, width, height, palette) {
   offset = 128;
   const imageData = buffer.subarray(offset);
 
+  const pcxWidth = maxX - minX + 1;
+  const pcxHeight = maxY - minY + 1;
   return implementation2(
     imageData,
     pcxWidth,
     pcxHeight,
     encoding,
-    bpl,
+    bytesPerRow,
     palette,
   );
-  //return implementation1(imageData, pcxWidth, pcxHeight, palette);
+  //return implementation1(imageData, maxX, maxY, palette);
 }
