@@ -63,15 +63,15 @@ test("Extract v2 sprite LZ5", () => {
 });
 
 test("Extract v2 sprite PNG8", () => {
-  const buffer = readFileSync(`${__dirname}/files/batman-v2.sff`);
+  const buffer = readFileSync(`${__dirname}/files/kim-v2.sff`);
   const data = extract(buffer, {
     palettes: false,
     spriteBuffer: false,
     decodeSpriteBuffer: true,
-    spriteGroups: [9000],
+    spriteGroups: [0],
   });
 
-  // group 9000, number 0
+  // group 0, number 0
   const sprite = data.sprites[0];
   const spritePng = convertSpriteDecodedBufferToPng(
     sprite.decodedBuffer,
@@ -104,12 +104,10 @@ test("Extract v2 sprite PNG24", () => {
     sprite.height,
   );
   writeFileSync(`${__dirname}/sprites/v2-sprite-004_test.png`, spritePng);
-  /*
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v2-sprite-004.png`,
   );
   assert.ok(spritePng.equals(expectedSpritePng));
-  */
 });
 
 test("Extract v2 sprite PNG32", () => {
@@ -129,12 +127,10 @@ test("Extract v2 sprite PNG32", () => {
     sprite.height,
   );
   writeFileSync(`${__dirname}/sprites/v2-sprite-005_test.png`, spritePng);
-  /*
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v2-sprite-005.png`,
   );
   assert.ok(spritePng.equals(expectedSpritePng));
-  */
 });
 
 test("Extract v2 sprite length 0 (copy of the first sprite)", () => {

@@ -46,9 +46,9 @@ for (const filePath of filePaths) {
     if (data.versionMajor === 2) {
       let found = false;
       for (const sprite of data.sprites) {
-        if (sprite.compressionMethod === "RAW") {
+        if (sprite.compressionMethod === "PNG8") {
           console.log(
-            `Sprite RAW, index ${sprite.index}, group ${sprite.group}, number ${sprite.number}`,
+            `Sprite PNG8, index ${sprite.index}, group ${sprite.group}, number ${sprite.number}`,
           );
           found = true;
           break;

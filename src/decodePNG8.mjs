@@ -5,14 +5,14 @@ export default function decodePNG8(buffer, width, height, palette) {
   const length = buffer.readUInt32LE(0);
   if (length !== width * height) {
     throw new Error(
-      `The length ${length} does not match ${width * height} (width x height)`
+      `The length ${length} does not match ${width * height} (width x height)`,
     );
   }
 
   const data = buffer.subarray(rawDataOffset);
 
-  const signature = data.subarray(25, 29).toString('hex');
-  const isPNG8 = signature === '03000800';
+  const signature = data.subarray(25, 29).toString("hex");
+  const isPNG8 = signature === "03000800";
   if (!isPNG8) {
     //throw new Error(`Not PNG8: ${signature}`);
     // SFF contains invalid PNG8 signature (=03000000)
@@ -38,15 +38,18 @@ export default function decodePNG8(buffer, width, height, palette) {
       break;
     }
   }
-  
-  if (!originalPaletteAlreadyOk) {
 
-    for (let paletteIndex = 0, p = 0; paletteIndex < palette.length && p < originalPalette.length; paletteIndex += 4, p += 3) {
+  if (!originalPaletteAlreadyOk) {
+    for (
+      let paletteIndex = 0, p = 0;
+      paletteIndex < palette.length && p < originalPalette.length;
+      paletteIndex += 4, p += 3
+    ) {
       const red = palette[paletteIndex + 0];
       const green = palette[paletteIndex + 1];
       const blue = palette[paletteIndex + 2];
       //const alpha = palette[paletteIndex + 3]; ignore alpha from the palette
-      
+
       originalPalette[p + 0] = red;
       originalPalette[p + 1] = green;
       originalPalette[p + 2] = blue;
@@ -65,7 +68,7 @@ export default function decodePNG8(buffer, width, height, palette) {
   data[paletteEnd + 1] = crcByte2;
   data[paletteEnd + 2] = crcByte3;
   data[paletteEnd + 3] = crcByte4;
-  */
+  //*/
 
   const options = { checkCRC: false }; // The option checkCRC=false prevents to generate a CRC for the palette
   var png = PNG.sync.read(data, options);
