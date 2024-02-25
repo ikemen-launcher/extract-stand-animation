@@ -1,5 +1,29 @@
 import { PNG } from "pngjs";
 //import crc32 from "crc-32";
+//import extract from "png-chunks-extract";
+
+function getChunkHeaderOffset(buffer) {
+  let offset = 8; // skip the signature
+
+  while (offset < buffer.length) {
+    const chunkLength = buffer.readUInt32BE(offset);
+    offset += 4;
+    const chunkType = buffer.toString("ascii", offset, offset + 4);
+    offset += 4;
+
+    if (chunkType === "IHDR") {
+      return offset - 4;
+    }
+
+    // skip data
+    offset += chunkLength;
+
+    // CRC
+    offset += 4;
+  }
+
+  throw new Error("PLTE not found");
+}
 
 function getChunkPaletteOffset(buffer) {
   let offset = 8; // skip the signature
@@ -28,12 +52,19 @@ export default function decodePNG8(buffer, width, height, palette) {
   const rawDataOffset = 4; // first 4 octet represents uncompressed length of data
   const length = buffer.readUInt32LE(0);
   if (length !== width * height) {
+    // Not true
+    /*
     throw new Error(
       `The length ${length} does not match ${width * height} (width x height)`,
     );
+    //*/
   }
 
   const data = buffer.subarray(rawDataOffset);
+
+  // Debug chunks
+  //const extractedChunks = extract(data);
+  //console.log(extractedChunks);
 
   // Replace the palette
   const chunkPaletteOffset = getChunkPaletteOffset(data);
@@ -55,6 +86,7 @@ export default function decodePNG8(buffer, width, height, palette) {
       break;
     }
   }
+  //console.log("originalPaletteAlreadyOk", originalPaletteAlreadyOk);
   if (!originalPaletteAlreadyOk) {
     for (
       let paletteIndex = 0, p = 0;
@@ -93,7 +125,6 @@ export default function decodePNG8(buffer, width, height, palette) {
   const options = { checkCRC: false };
   const png = PNG.sync.read(data, options);
 
-  ///*
   const colorComponentCount = 4;
   const out = Buffer.alloc(width * height * colorComponentCount, 0);
   for (let y = 0; y < height; y++) {
@@ -102,7 +133,8 @@ export default function decodePNG8(buffer, width, height, palette) {
       const red = png.data[index + 0];
       const green = png.data[index + 1];
       const blue = png.data[index + 2];
-      const alpha = png.data[index + 3];
+      //const alpha = png.data[index + 3];
+      const alpha = 255;
       //console.log(`  ${red}, ${green}, ${blue}, ${alpha}`);
 
       out[index + 0] = red;
@@ -117,7 +149,4 @@ export default function decodePNG8(buffer, width, height, palette) {
     }
   }
   return out;
-  //*/
-
-  return png.data;
 }

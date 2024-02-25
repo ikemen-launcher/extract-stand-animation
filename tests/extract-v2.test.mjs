@@ -153,3 +153,26 @@ test("Extract v2 sprite length 0 (copy of the first sprite)", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v2 PNG8 force alpha 255", () => {
+  const buffer = readFileSync(`${__dirname}/files/kfm720-v2.sff`);
+  const data = extract(buffer, {
+    palettes: false,
+    spriteBuffer: true,
+    decodeSpriteBuffer: true,
+    spriteGroups: [9000],
+  });
+
+  // group 9000, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-007_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-007.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});

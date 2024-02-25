@@ -8,30 +8,31 @@ export default function extractPalettesFromSFFV2(buffer, metadata) {
     paletteIndex++
   ) {
     const group = buffer.readUInt16LE(
-      metadata.paletteMapOffset + paletteIndex * paletteMapSize
+      metadata.paletteMapOffset + paletteIndex * paletteMapSize,
     );
 
     const number = buffer.readUInt16LE(
-      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x02
+      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x02,
     );
 
     const colorCount = buffer.readUInt32LE(
-      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x04
+      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x04,
     );
 
     const dataOffset = buffer.readUInt32LE(
-      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x08
+      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x08,
     );
     const dataLength = buffer.readUInt32LE(
-      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x0c
+      metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x0c,
     );
 
     const paletteBuffer = buffer.subarray(
       metadata.paletteBankOffset + dataOffset,
-      metadata.paletteBankOffset + dataOffset + dataLength
+      metadata.paletteBankOffset + dataOffset + dataLength,
     );
 
     palettes.push({
+      index: paletteIndex,
       group,
       number,
       colorCount,
