@@ -25,7 +25,7 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     // It happens for the last sprite
     // It means the section goes to the end
     if (nextSpriteOffset === 0) {
-      nextSpriteOffset = data.length - 1;
+      nextSpriteOffset = data.length;
     }
     const spriteSection = data.subarray(spriteOffset, nextSpriteOffset);
 
@@ -75,6 +75,7 @@ export default function extractSpritesFromSFFV1(data, metadata) {
         linkedSpriteIndex,
         samePalette,
         comment,
+        palette,
       });
       spriteOffset = nextSpriteOffset;
       continue;

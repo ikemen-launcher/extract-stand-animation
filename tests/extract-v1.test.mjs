@@ -39,7 +39,7 @@ test("Extract v1 sprite", () => {
   assert.ok(spritePng.equals(expectedSpritePng));
 });
 
-test.skip("Extract v1 last sprite", () => {
+test("Extract v1 last sprite", () => {
   const buffer = readFileSync(`${__dirname}/files/arale-v1.sff`);
   const data = extract(buffer, {
     palettes: true,
@@ -50,7 +50,6 @@ test.skip("Extract v1 last sprite", () => {
     spriteGroups: [10302],
   });
   const sprite = data.sprites[0];
-  console.log(sprite);
   const spritePng = convertSpriteDecodedBufferToPng(
     sprite.decodedBuffer,
     sprite.width,
