@@ -52,7 +52,7 @@ export default function decodePNG8(buffer, width, height, palette) {
   const rawDataOffset = 4; // first 4 octet represents uncompressed length of data
   const length = buffer.readUInt32LE(0);
   if (length !== width * height) {
-    // Not true
+    // Not true, sometimes x8
     /*
     throw new Error(
       `The length ${length} does not match ${width * height} (width x height)`,

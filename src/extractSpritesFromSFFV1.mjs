@@ -96,12 +96,19 @@ export default function extractSpritesFromSFFV1(data, metadata) {
         palette,
       });
     */
-    const imageBuffer =
+    let imageBuffer =
       linkedSpriteIndex === 0
         ? data.subarray(spriteOffset + 32, nextSpriteOffset - paletteSize)
         : sprites[linkedSpriteIndex].buffer;
-    const width = getWidthFromPcx(imageBuffer);
-    const height = getHeightFromPcx(imageBuffer);
+    let width = getWidthFromPcx(imageBuffer);
+    let height = getHeightFromPcx(imageBuffer);
+
+    // Too big, invalid size
+    // Fallback to 1x1 image
+    if (width * height >= 65536 * 65536) {
+      width = 1;
+      height = 1;
+    }
 
     const sprite = {
       index,

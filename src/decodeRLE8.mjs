@@ -1,19 +1,20 @@
 export default function decodeRLE8(data, width, height, palette) {
   if (data.length < 4) {
-    throw new Error(
-      `Invalid RLE8, length: ${data.length}`
-    );
+    throw new Error(`Invalid RLE8, length: ${data.length}`);
   }
   //first 4 octet represents uncompressed length of data
   //and it must be the same as imgw * imgh
   //and RLE8 is always for 256 indexed colour
   const uncompressedDataLength = data.readUInt32LE(0);
   if (uncompressedDataLength !== width * height) {
+    // Not true, sometimes x8
+    /*
     throw new Error(
       `Invalid RLE8, uncompressed data length should be ${
         width * height
       } (${width} x ${height}), actual: ${uncompressedDataLength}`
     );
+    //*/
   }
   if (data.length < 4) {
     throw new Error(`Invalid RLE8, too short`);
@@ -41,6 +42,7 @@ export default function decodeRLE8(data, width, height, palette) {
         const green = palette[paletteValueIndex * colorComponentCount + 1];
         const blue = palette[paletteValueIndex * colorComponentCount + 2];
         const alpha = palette[paletteValueIndex * colorComponentCount + 3];
+        //console.log(`R ${red}, G ${green}, B ${blue}, A ${alpha}`);
 
         out[(y * width + x) * colorComponentCount + 0] = red;
         out[(y * width + x) * colorComponentCount + 1] = green;
@@ -64,6 +66,6 @@ export default function decodeRLE8(data, width, height, palette) {
       runlength = paletteValueIndex - 0x40; //if e was 0b01xxxxxx, e - 0x40 is runlen.
     }
   }
-  
+
   return out;
 }

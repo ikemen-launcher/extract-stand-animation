@@ -42,7 +42,7 @@ function implementation1(buffer, pcxWidth, pcxHeight, palette) {
 function implementation2(buffer, pcxWidth, pcxHeight, encoding, bpl, palette) {
   const unknownVariable = encoding == 1 ? bpl : 0;
 
-  const p = Buffer.alloc((pcxWidth + 1) * (pcxHeight + 1));
+  const p = Buffer.alloc(pcxWidth * pcxHeight);
   let i = 0,
     j = 0,
     k = 0,
@@ -74,7 +74,7 @@ function implementation2(buffer, pcxWidth, pcxHeight, encoding, bpl, palette) {
     }
   }
 
-  const out = Buffer.alloc((pcxWidth + 1) * (pcxHeight + 1) * 4);
+  const out = Buffer.alloc(pcxWidth * pcxHeight * 4);
   for (let ii = 0, aa = 0; ii < p.length; ii++, aa += 4) {
     const paletteColorIndex = p[ii] * 4;
 
@@ -164,8 +164,15 @@ export default function decodePCX(buffer, width, height, palette) {
   offset = 128;
   const imageData = buffer.subarray(offset);
 
+  //console.log('minX', minX, 'maxX', maxX, 'minY', minY, 'maxY', maxY);
   const pcxWidth = maxX - minX + 1;
   const pcxHeight = maxY - minY + 1;
+
+  // Too big, invalid size
+  if (pcxWidth * pcxHeight >= 65536 * 65536) {
+    return Buffer.alloc(0);
+  }
+
   return implementation2(
     imageData,
     pcxWidth,

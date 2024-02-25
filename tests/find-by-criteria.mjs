@@ -33,14 +33,14 @@ for (const filePath of filePaths) {
       paletteTable: false,
       sprites: true,
       spriteBuffer: false,
-      decodeSpriteBuffer: false,
+      decodeSpriteBuffer: true,
     });
 
     /*
-  if (data.versionMajor === 1 && data.paletteType !== 0) {
-    console.log(filePath, data.length, data.paletteType);
-  }
-  //*/
+    if (data.versionMajor === 1 && data.paletteType !== 0) {
+      console.log(filePath, data.length, data.paletteType);
+    }
+    //*/
 
     //*
     if (data.versionMajor === 2) {

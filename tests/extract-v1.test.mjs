@@ -134,3 +134,28 @@ test("Extract v1 sprite linked index > current index", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v1 invalid sprite size", () => {
+  const buffer = readFileSync(`${__dirname}/files/vivi-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [10017],
+  });
+
+  // group 10017, number 7
+  const sprite = data.sprites[7];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-006_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-006.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
