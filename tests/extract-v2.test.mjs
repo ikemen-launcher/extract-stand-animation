@@ -79,12 +79,10 @@ test("Extract v2 sprite PNG8", () => {
     sprite.height,
   );
   writeFileSync(`${__dirname}/sprites/v2-sprite-003_test.png`, spritePng);
-  /*
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v2-sprite-003.png`,
   );
   assert.ok(spritePng.equals(expectedSpritePng));
-  */
 });
 
 test("Extract v2 sprite PNG24", () => {

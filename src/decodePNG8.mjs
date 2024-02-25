@@ -1,4 +1,28 @@
 import { PNG } from "pngjs";
+//import crc32 from "crc-32";
+
+function getChunkPaletteOffset(buffer) {
+  let offset = 8; // skip the signature
+
+  while (offset < buffer.length) {
+    const chunkLength = buffer.readUInt32BE(offset);
+    offset += 4;
+    const chunkType = buffer.toString("ascii", offset, offset + 4);
+    offset += 4;
+
+    if (chunkType === "PLTE") {
+      return offset - 4;
+    }
+
+    // skip data
+    offset += chunkLength;
+
+    // CRC
+    offset += 4;
+  }
+
+  throw new Error("PLTE not found");
+}
 
 export default function decodePNG8(buffer, width, height, palette) {
   const rawDataOffset = 4; // first 4 octet represents uncompressed length of data
@@ -11,21 +35,14 @@ export default function decodePNG8(buffer, width, height, palette) {
 
   const data = buffer.subarray(rawDataOffset);
 
-  const signature = data.subarray(25, 29).toString("hex");
-  const isPNG8 = signature === "03000800";
-  if (!isPNG8) {
-    //throw new Error(`Not PNG8: ${signature}`);
-    // SFF contains invalid PNG8 signature (=03000000)
-  }
-
   // Replace the palette
-  const paletteStart = 33 + 8; // 33 because it contains PNG signature
-  const paletteChunkSignatureLength = 8;
-  const paletteEnd = paletteStart + 768 + paletteChunkSignatureLength; // 256 * 3 color components (RGB)
+  const chunkPaletteOffset = getChunkPaletteOffset(data);
+  const paletteStart = chunkPaletteOffset + 4; // 4 for the string PLTE
+  const paletteEnd = paletteStart + 768; // 256 * 3 color components (RGB)
   const originalPalette = data.subarray(paletteStart, paletteEnd);
 
   let originalPaletteAlreadyOk = false;
-  for (let colorIndex = 0; colorIndex < 256; colorIndex++) {
+  for (let colorIndex = 0; colorIndex < 256 * 3; colorIndex += 3) {
     const red = originalPalette[colorIndex];
     const green = originalPalette[colorIndex + 1];
     const blue = originalPalette[colorIndex + 2];
@@ -38,7 +55,6 @@ export default function decodePNG8(buffer, width, height, palette) {
       break;
     }
   }
-
   if (!originalPaletteAlreadyOk) {
     for (
       let paletteIndex = 0, p = 0;
@@ -56,22 +72,26 @@ export default function decodePNG8(buffer, width, height, palette) {
     }
   }
 
+  // Debug palette
   /*
-  // Generate CRC
-  const paletteCrc = crc32(originalPalette);
-  console.log('paletteCrc:', paletteCrc);
-  const crcByte1 = parseInt(paletteCrc.substring(0, 2), 16);
-  const crcByte2 = parseInt(paletteCrc.substring(2, 4), 16);
-  const crcByte3 = parseInt(paletteCrc.substring(4, 6), 16);
-  const crcByte4 = parseInt(paletteCrc.substring(6, 8), 16);
-  data[paletteEnd + 0] = crcByte1;
-  data[paletteEnd + 1] = crcByte2;
-  data[paletteEnd + 2] = crcByte3;
-  data[paletteEnd + 3] = crcByte4;
+  for (let colorIndex = 0; colorIndex < 256 * 3; colorIndex += 3) {
+    const red = originalPalette[colorIndex];
+    const green = originalPalette[colorIndex + 1];
+    const blue = originalPalette[colorIndex + 2];
+    console.log(` R ${red}, G ${green}, B ${blue}`);
+  }
   //*/
 
-  const options = { checkCRC: false }; // The option checkCRC=false prevents to generate a CRC for the palette
-  var png = PNG.sync.read(data, options);
+  /*
+  // Compute CRC signature for the new palette
+  // Install package "crc-32"
+  const paletteCrc = crc32.buf(data.subarray(chunkPaletteOffset, chunkPaletteOffset + 4 + 768));
+  data.writeInt32BE(paletteCrc, chunkPaletteOffset + 4 + 768);
+  //*/
+
+  // The option checkCRC=false prevents to generate a CRC for the palette
+  const options = { checkCRC: false };
+  const png = PNG.sync.read(data, options);
 
   ///*
   const colorComponentCount = 4;
