@@ -110,3 +110,28 @@ test("Extract v1 sprite index == linked index", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v1 sprite linked index > current index", () => {
+  const buffer = readFileSync(`${__dirname}/files/cvssakura-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [5072],
+  });
+
+  // group 5072, number 10
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-005_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-005.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});

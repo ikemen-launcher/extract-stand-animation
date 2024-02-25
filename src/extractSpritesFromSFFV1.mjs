@@ -1,5 +1,17 @@
 import convertPaletteRGBtoRGBA from "./convertPaletteRGBtoRGBA.mjs";
 
+function getWidthFromPcx(buffer) {
+  const minX = buffer.readUInt16LE(4);
+  const maxX = buffer.readUInt16LE(8);
+  return maxX - minX + 1;
+}
+
+function getHeightFromPcx(buffer) {
+  const minY = buffer.readUInt16LE(6);
+  const maxY = buffer.readUInt16LE(10);
+  return maxY - minY + 1;
+}
+
 export default function extractSpritesFromSFFV1(data, metadata) {
   let previousPalette = null;
   const sprites = [];
@@ -26,7 +38,7 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     const group = spriteSection.readUInt16LE(12);
     const number = spriteSection.readUInt16LE(14);
     let linkedSpriteIndex = spriteSection.readUInt16LE(16);
-    if (linkedSpriteIndex == index) {
+    if (linkedSpriteIndex >= index) {
       linkedSpriteIndex = 0;
     }
 
@@ -68,23 +80,29 @@ export default function extractSpritesFromSFFV1(data, metadata) {
       continue;
     }
 
-    //console.log('spriteOffset', spriteOffset, 'nextSpriteOffset', nextSpriteOffset, 'length', length);
-    //console.log('group', group, 'number', number, 'samePalette', samePalette, 'linkedSpriteIndex', linkedSpriteIndex);
+    /*
+      console.log({
+        index,
+        length,
+        x,
+        y,
+        group,
+        number,
+        linkedSpriteIndex,
+        samePalette,
+        paletteSize,
+        comment,
+        palette,
+      });
+    */
     const imageBuffer =
       linkedSpriteIndex === 0
         ? data.subarray(spriteOffset + 32, nextSpriteOffset - paletteSize)
         : sprites[linkedSpriteIndex].buffer;
+    const width = getWidthFromPcx(imageBuffer);
+    const height = getHeightFromPcx(imageBuffer);
 
-    // Width and height from PCX format
-    const minX = imageBuffer.readUInt16LE(4);
-    const minY = imageBuffer.readUInt16LE(6);
-    const maxX = imageBuffer.readUInt16LE(8);
-    const maxY = imageBuffer.readUInt16LE(10);
-    const width = maxX - minX + 1;
-    const height = maxY - minY + 1;
-    //console.log('width', width, 'height', height);
-
-    sprites.push({
+    const sprite = {
       index,
       length,
       x,
@@ -99,7 +117,9 @@ export default function extractSpritesFromSFFV1(data, metadata) {
       buffer: imageBuffer,
       width,
       height,
-    });
+    };
+
+    sprites.push(sprite);
     spriteOffset = nextSpriteOffset;
   }
 
