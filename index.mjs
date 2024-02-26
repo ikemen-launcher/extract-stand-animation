@@ -5,7 +5,7 @@ import extractPalettesFromSFFV2 from "./src/extractPalettesFromSFFV2.mjs";
 import extractSpritesFromSFFV2 from "./src/extractSpritesFromSFFV2.mjs";
 import decodeSpriteBuffer from "./src/decodeSpriteBuffer.mjs";
 import convertPaletteRGBABufferToTable from "./src/convertPaletteRGBABufferToTable.mjs";
-import convertPaletteRGBtoRGBA from "./src/convertPaletteRGBtoRGBA.mjs";
+import convertExternalPaletteToRGBA from "./src/convertExternalPaletteToRGBA.mjs";
 
 export default function extract(buffer, providedOptions) {
   const options = {
@@ -16,6 +16,7 @@ export default function extract(buffer, providedOptions) {
     spriteBuffer: true,
     decodeSpriteBuffer: false,
     spriteGroups: [],
+    applyPalette: null,
     ...providedOptions,
   };
 
@@ -47,7 +48,7 @@ export default function extract(buffer, providedOptions) {
                 sprite.decodedBuffer = linkedSprite.decodedBuffer;
               } else {
                 if (options.applyPalette && sprite.samePalette != 0) {
-                  sprite.palette = convertPaletteRGBtoRGBA(
+                  sprite.palette = convertExternalPaletteToRGBA(
                     options.applyPalette,
                   );
                 }

@@ -42,7 +42,7 @@ for (const filePath of filePaths) {
     }
     //*/
 
-    //*
+    /*
     if (data.versionMajor === 2) {
       let found = false;
       for (const sprite of data.sprites) {

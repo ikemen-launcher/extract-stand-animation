@@ -159,3 +159,30 @@ test("Extract v1 invalid sprite size", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v1 with external palette", () => {
+  const buffer = readFileSync(`${__dirname}/files/cyclops-v1.sff`);
+  const palette = readFileSync(`${__dirname}/files/cyclops-v1-palette1.act`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+    applyPalette: palette,
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-007_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-007.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
