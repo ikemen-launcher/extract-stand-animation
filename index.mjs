@@ -127,12 +127,16 @@ export default function extract(buffer, providedOptions) {
                 const linkedSprite = sprites[sprite.linkedIndex];
                 sprite.decodedBuffer = linkedSprite.decodedBuffer;
               } else {
+                let palette = paletteBuffers[sprite.paletteIndex];
+                if (options.applyPalette) {
+                  palette = convertExternalPaletteToRGBA(options.applyPalette);
+                }
                 sprite.decodedBuffer = decodeSpriteBuffer(
                   sprite.compressionMethod,
                   sprite.buffer,
                   sprite.width,
                   sprite.height,
-                  paletteBuffers[sprite.paletteIndex],
+                  palette,
                 );
               }
             }

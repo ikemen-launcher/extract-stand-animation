@@ -176,3 +176,28 @@ test("Extract v2 PNG8 force alpha 255", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v2 sprite with external palette", () => {
+  const buffer = readFileSync(`${__dirname}/files/ruby-v2.sff`);
+  const palette = readFileSync(`${__dirname}/files/ruby-v2-palette1.act`);
+  const data = extract(buffer, {
+    palettes: false,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+    applyPalette: palette,
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-008_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-008.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
