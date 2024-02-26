@@ -1,0 +1,5 @@
+tests/
+.nvmrc
+.husky/
+!index.mjs
+!src/
