@@ -1,10 +1,19 @@
 {
   "name": "sff-extractor",
   "description": "Extract information and images contained in a SFF file (Elecbyte format)",
+  "keywords": [
+    "sff",
+    "mugen",
+    "ikemen",
+    "elecbyte"
+  ],
   "version": "1.0.2",
   "author": "neolao <contact@neolao.com>",
   "private": false,
-  "repository": "https://github.com/ikemen-launcher/sff-extractor.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ikemen-launcher/sff-extractor.git"
+  },
   "license": "MIT",
   "main": "./index.mjs",
   "engines": {
