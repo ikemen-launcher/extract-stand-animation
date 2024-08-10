@@ -22,14 +22,20 @@ export default function extractPalettesFromSFFV2(buffer, metadata) {
     const dataOffset = buffer.readUInt32LE(
       metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x08,
     );
-    const dataLength = buffer.readUInt32LE(
+    let dataLength = buffer.readUInt32LE(
       metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x0c,
     );
 
-    const paletteBuffer = buffer.subarray(
+    let paletteBuffer = buffer.subarray(
       metadata.paletteBankOffset + dataOffset,
       metadata.paletteBankOffset + dataOffset + dataLength,
     );
+
+    // Sometimes, the dataLength is zero
+    // In this case, use the first palette buffer
+    if (paletteBuffer.length === 0 && palettes.length > 0) {
+      paletteBuffer = palettes[0].buffer;
+    }
 
     palettes.push({
       index: paletteIndex,
