@@ -13,6 +13,7 @@ function getHeightFromPcx(buffer) {
 }
 
 export default function extractSpritesFromSFFV1(data, metadata) {
+  let firstPalette = null;
   let previousPalette = null;
   const sprites = [];
   for (
@@ -53,7 +54,9 @@ export default function extractSpritesFromSFFV1(data, metadata) {
     const paletteSize = c00 || samePalette ? 0 : 256 * 3;
 
     let palette = null;
-    if (samePalette && previousPalette) {
+    if (samePalette && firstPalette && group === 0 && number === 0) {
+      palette = firstPalette;
+    } else if (samePalette && previousPalette) {
       palette = previousPalette;
     } else {
       const paletteRGB = data.subarray(
@@ -61,8 +64,11 @@ export default function extractSpritesFromSFFV1(data, metadata) {
         nextSpriteOffset,
       );
       palette = convertPaletteRGBtoRGBA(paletteRGB);
-      previousPalette = palette;
     }
+    if (!firstPalette) {
+      firstPalette = palette;
+    }
+    previousPalette = palette;
 
     if (length === 0) {
       sprites.push({

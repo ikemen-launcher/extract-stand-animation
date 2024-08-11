@@ -87,6 +87,7 @@ test("Extract v1 sprite length 0 (copy of the previous sprite)", () => {
 
 test("Extract v1 sprite index == linked index", () => {
   const buffer = readFileSync(`${__dirname}/files/greenarrow-v1.sff`);
+  const palette = readFileSync(`${__dirname}/files/greenarrow-v1-palette1.act`);
   const data = extract(buffer, {
     palettes: true,
     paletteBuffer: false,
@@ -94,6 +95,7 @@ test("Extract v1 sprite index == linked index", () => {
     spriteBuffer: false,
     decodeSpriteBuffer: true,
     spriteGroups: [5040],
+    applyPalette: palette,
   });
 
   // group 5040, number 20
@@ -183,6 +185,78 @@ test("Extract v1 with external palette", () => {
   writeFileSync(`${__dirname}/sprites/v1-sprite-007_test.png`, spritePng);
   const expectedSpritePng = readFileSync(
     `${__dirname}/sprites/v1-sprite-007.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
+
+test("Extract v1 sprite with same palette", () => {
+  const buffer = readFileSync(`${__dirname}/files/gray-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-008_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-008.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
+
+test("Extract v1 sprite with same palette (2)", () => {
+  const buffer = readFileSync(`${__dirname}/files/lucifer-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-009_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-009.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
+
+test("Extract v1 sprite with same palette (3)", () => {
+  const buffer = readFileSync(`${__dirname}/files/gray-v1.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [5],
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v1-sprite-010_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v1-sprite-010.png`,
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
