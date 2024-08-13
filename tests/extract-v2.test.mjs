@@ -275,3 +275,28 @@ test("Extract v2 sprite with empty palette, use previous palette", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v2 sprite with empty palette, use previous palette (2)", () => {
+  const buffer = readFileSync(`${__dirname}/files/piccolo-sd-v2.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: false,
+    decodeSpriteBuffer: true,
+    spriteGroups: [0],
+  });
+
+  // group 0, number 0
+  const sprite = data.sprites[0];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-012_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-012.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});

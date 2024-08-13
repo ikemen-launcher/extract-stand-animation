@@ -18,7 +18,7 @@ export default function extractPalettesFromSFFV2(buffer, metadata) {
     const colorCount = buffer.readUInt16LE(
       metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x04,
     );
-    const samePreviousPalette = buffer.readUInt16LE(
+    const copyPaletteIndex = buffer.readUInt16LE(
       metadata.paletteMapOffset + paletteIndex * paletteMapSize + 0x06,
     );
 
@@ -37,11 +37,11 @@ export default function extractPalettesFromSFFV2(buffer, metadata) {
     // When the dataLength is zero
     // It means this is a copy of another palette
     if (dataLength === 0 && palettes.length > 0) {
-      if (samePreviousPalette == 1) {
-        // Use the previous palette
-        paletteBuffer = palettes[palettes.length - 1].buffer;
+      if (copyPaletteIndex > 0) {
+        // Copy the previous palette
+        paletteBuffer = palettes[copyPaletteIndex].buffer;
       } else {
-        // Otherwize, use the first palette
+        // Otherwise, use the first palette
         paletteBuffer = palettes[0].buffer;
       }
     }
@@ -51,7 +51,7 @@ export default function extractPalettesFromSFFV2(buffer, metadata) {
       group,
       number,
       colorCount,
-      samePreviousPalette,
+      copyPaletteIndex,
       dataOffset,
       dataLength,
       buffer: paletteBuffer,
