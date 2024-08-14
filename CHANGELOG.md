@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.8] - 2024-08-14
+
+### Fixed
+
+- Get sprite buffer when load mode = 1
+
 ## [1.0.7] - 2024-08-14
 
 ### Fixed
@@ -38,7 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handle empty palette (use the first palette)
 - The first color from external palette is transparent
 
-[Unreleased]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.7...HEAD
+[Unreleased]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.8...HEAD
+[1.0.8]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.7...1.0.8
 [1.0.7]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.4...1.0.5

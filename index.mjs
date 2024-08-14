@@ -131,13 +131,19 @@ export default function extract(buffer, providedOptions) {
                 if (options.applyPalette) {
                   palette = convertExternalPaletteToRGBA(options.applyPalette);
                 }
-                sprite.decodedBuffer = decodeSpriteBuffer(
-                  sprite.compressionMethod,
-                  sprite.buffer,
-                  sprite.width,
-                  sprite.height,
-                  palette,
-                );
+                try {
+                  sprite.decodedBuffer = decodeSpriteBuffer(
+                    sprite.compressionMethod,
+                    sprite.buffer,
+                    sprite.width,
+                    sprite.height,
+                    palette,
+                  );
+                } catch (error) {
+                  throw new Error(
+                    `Unable to decode sprite (group: ${sprite.group}, number: ${sprite.number}): ${error.message}`,
+                  );
+                }
               }
             }
           }

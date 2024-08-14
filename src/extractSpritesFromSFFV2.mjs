@@ -88,6 +88,8 @@ export default function extractSpritesFromSFFV2(data, metadata, palettes) {
       metadata.spriteListOffset + spriteIndex * spriteNodeSize + 0x18,
     );
 
+    // 0 = OnDemand (default)
+    // 1 = OnLoad
     const loadMode = data.readUInt16LE(
       metadata.spriteListOffset + spriteIndex * spriteNodeSize + 0x1a,
     );
@@ -105,10 +107,16 @@ export default function extractSpritesFromSFFV2(data, metadata, palettes) {
       });
       continue;
     }
-    const spriteBuffer = data.subarray(
+    let spriteBuffer = data.subarray(
       metadata.paletteBankOffset + dataOffset,
       metadata.paletteBankOffset + dataOffset + dataLength,
     );
+    if (loadMode === 1) {
+      spriteBuffer = data.subarray(
+        metadata.onDemandDataSizeTotal + dataOffset,
+        metadata.onDemandDataSizeTotal + dataOffset + dataLength,
+      );
+    }
 
     sprites.push({
       index: spriteIndex,

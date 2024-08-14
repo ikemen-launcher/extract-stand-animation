@@ -325,3 +325,28 @@ test("Extract v2 sprite PNG8 (2)", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v2 sprite PNG8, loadMode = 1", () => {
+  const buffer = readFileSync(`${__dirname}/files/kazuki-v2.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: true,
+    paletteTable: true,
+    spriteBuffer: true,
+    decodeSpriteBuffer: true,
+    spriteGroups: [3096],
+  });
+
+  // group 3096, number 14
+  const sprite = data.sprites[14];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-014_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-014.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});
