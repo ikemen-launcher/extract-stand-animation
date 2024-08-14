@@ -300,3 +300,28 @@ test("Extract v2 sprite with empty palette, use previous palette (2)", () => {
   );
   assert.ok(spritePng.equals(expectedSpritePng));
 });
+
+test("Extract v2 sprite PNG8 (2)", () => {
+  const buffer = readFileSync(`${__dirname}/files/kumagawa-v2.sff`);
+  const data = extract(buffer, {
+    palettes: true,
+    paletteBuffer: false,
+    paletteTable: true,
+    spriteBuffer: true,
+    decodeSpriteBuffer: true,
+    spriteGroups: [9000],
+  });
+
+  // group 9000, number 1
+  const sprite = data.sprites[1];
+  const spritePng = convertSpriteDecodedBufferToPng(
+    sprite.decodedBuffer,
+    sprite.width,
+    sprite.height,
+  );
+  writeFileSync(`${__dirname}/sprites/v2-sprite-013_test.png`, spritePng);
+  const expectedSpritePng = readFileSync(
+    `${__dirname}/sprites/v2-sprite-013.png`,
+  );
+  assert.ok(spritePng.equals(expectedSpritePng));
+});

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.7] - 2024-08-14
+
+### Fixed
+
+- Decode PNG8 with correct transparency
+
+## [1.0.6] - 2024-08-13
+
+### Fixed
+
+- Handle empty palette (use the previous palette)
+
 ## [1.0.5] - 2024-08-12
 
 ### Fixed
@@ -26,7 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handle empty palette (use the first palette)
 - The first color from external palette is transparent
 
-[Unreleased]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.5...HEAD
+[Unreleased]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.7...HEAD
+[1.0.7]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.6...1.0.7
+[1.0.6]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/ikemen-launcher/sff-extractor/compare/1.0.2...1.0.3

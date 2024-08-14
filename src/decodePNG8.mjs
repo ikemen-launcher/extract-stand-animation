@@ -1,4 +1,5 @@
-import { PNG } from "pngjs";
+import UPNG from "./UPNG.mjs";
+//import { PNG } from "pngjs";
 //import crc32 from "crc-32";
 //import extract from "png-chunks-extract";
 
@@ -122,31 +123,27 @@ export default function decodePNG8(buffer, width, height, palette) {
   //*/
 
   // The option checkCRC=false prevents to generate a CRC for the palette
-  const options = { checkCRC: false };
-  const png = PNG.sync.read(data, options);
+  //const options = { checkCRC: false };
+  //const png = PNG.sync.read(data, options);
 
+  const decodedPng = UPNG.decode(data);
   const colorComponentCount = 4;
   const out = Buffer.alloc(width * height * colorComponentCount, 0);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const index = (y * width + x) * 4;
-      const red = png.data[index + 0];
-      const green = png.data[index + 1];
-      const blue = png.data[index + 2];
-      //const alpha = png.data[index + 3];
-      const alpha = 255;
-      //console.log(`  ${red}, ${green}, ${blue}, ${alpha}`);
+      const colorIndex = decodedPng.data[y * width + x];
+      const red = palette[colorIndex * colorComponentCount + 0];
+      const green = palette[colorIndex * colorComponentCount + 1];
+      const blue = palette[colorIndex * colorComponentCount + 2];
+      //const alpha = palette[colorIndex + 3];
 
+      const index = (y * width + x) * 4;
       out[index + 0] = red;
       out[index + 1] = green;
       out[index + 2] = blue;
-      out[index + 3] = alpha;
-
-      // The first color in the palette is considered as transparent
-      if (red === palette[0] && green === palette[1] && blue === palette[2]) {
-        out[index + 3] = 0;
-      }
+      out[index + 3] = colorIndex === 0 ? 0 : 255; // Only the first color is transparent
     }
   }
+
   return out;
 }
